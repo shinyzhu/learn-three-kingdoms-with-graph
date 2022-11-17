@@ -44,7 +44,7 @@ return chapter_order, chapter_name, para_order, trim(paragraphs[para_order-1].te
 
 Then you'd export it as `csv` file.
 
-### Extrat Sentences?Words?Names?
+### Extract Sentences? Words? Names (NER)?
 
 Use NLP~ or hard coding?
 
@@ -58,25 +58,27 @@ Yes. I use NLP: <https://github.com/HIT-SCIR/ltp>
 
 from ltp import StnSplit
 
+def populate_sentences(file):
+    f = open(file, 'r')
+    lines = f.readlines()
+
+    for line in lines:
+        parts = line.split(',')
+
+        chapter_order = parts[0]
+        chapter_name = parts[1]
+        para_order = parts[2]
+        para = parts[3]
+
+        sent = StnSplit().split(para) # split sentences by LTP, see: http://ltp.ai/docs/quickstart.html
+
+        for i in range(len(sent)):
+            sentence_order = str(i + 1)
+            sentence = sent[i]
+            print(','.join([chapter_order, chapter_name, sentence]))
+
 file = './sg/threekingdoms-content.csv'
-
-f = open(file, 'r')
-lines = f.readlines()
-
-for line in lines:
-    parts = line.split(',')
-
-    chapter_order = parts[0]
-    chapter_name = parts[1]
-    para_order = parts[2]
-    para = parts[3]
-
-    sent = StnSplit().split(para) # split sentences by LTP, see: http://ltp.ai/docs/quickstart.html
-
-    for i in range(len(sent)):
-        sentence_order = str(i + 1)
-        sentence = sent[i]
-        print(','.join([chapter_order, chapter_name, sentence]))
+populate_sentences(file)
 ```
 
 Then you'd run it as:
@@ -112,10 +114,8 @@ def process_ner(file):
         for ne in ners[0]:
             if(ne[0] == 'Nh'):
                 print(','.join([sentence, ne[1]]))
-                
 
 file = 'sg/threekingdoms-sentences-ltp.csv'
-
 process_ner(file)
 ```
 
